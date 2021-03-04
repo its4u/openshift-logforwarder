@@ -1,0 +1,4 @@
+clusterloggings/instance
+service/fluentdForwarder
+deployment/fluentdForwarder
+configmaps/fluentd-pipeline

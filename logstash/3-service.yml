@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: openshift-logging
+spec:
+  selector:
+    app: logstash
+  ports:
+  - nodePort: 0
+    port: 5044
+    protocol: TCP
+    targetPort: 5044
+    name: application
+  - nodePort: 0
+    port: 5045
+    protocol: TCP
+    targetPort: 5045
+    name: infrastructure
+  - nodePort: 0
+    port: 5046
+    protocol: TCP
+    targetPort: 5046
+    name: audit

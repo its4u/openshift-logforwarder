@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: openshift-logging
+data:
+  input.conf: |
+    input {
+      tcp {
+        port => "${INPUT_PORT}"
+        type => syslog
+      }
+    }
+  output.conf: |
+    output {
+      http {
+        http_method => "post"
+        url => "${SPLUNK_URL}:${SPLUNK_PORT}"
+        headers => ["Authorization", "Splunk ${SPLUNK_TOKEN}"]
+        mapping => {
+          "event" => "%{log}"
+        }
+      }
+
+      # Uncomment to enable output to stdout
+      # stdout {}
+    }
+  application.conf: |
+    filter {
+      #Need filter here
+    }
+  infrastructure.conf: |
+    filter {
+      #Need filter here
+    }
+  audit.conf: |
+    filter {
+      # Format beginning of message
+      ruby {
+        # Look at unformatted message to understand this filter.
+        path => "/usr/share/logstash/ruby_filter/main.rb"
+      }
+      # Format message in fields
+      kv {
+        source => "message"
+        field_split_pattern => "\t"
+        value_split => ":"
+        target => "message"
+      }
+
+      #Need filter here
+      drop {}
+    }

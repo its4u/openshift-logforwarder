@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: openshift-logging
+  labels:
+    app: logstash
+    app.kubernetes.io/component: logstash
+    app.kubernetes.io/instance: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: logstash
+  template:
+    metadata:
+      labels:
+        deployment: logstash
+        app: logstash
+    spec:
+      ### CONTAINERS ###
+      containers:
+        # Application
+        - image: docker.elastic.co/logstash/logstash:7.11.1
+          name: logstash-application
+          ports:
+            - containerPort: 5044
+              protocol: TCP
+          env:
+            - name: INPUT_PORT
+              value: "5044"
+            - name: SPLUNK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: url
+            - name: SPLUNK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: port
+            - name: SPLUNK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-token
+                  key: token
+          volumeMounts:
+          - name: pipeline-application
+            mountPath: /usr/share/logstash/pipeline/
+          - name: config-application
+            mountPath: /usr/share/logstash/config/
+        # Infrastructure
+        - image: docker.elastic.co/logstash/logstash:7.11.1
+          name: logstash-infrastructure
+          ports:
+            - containerPort: 5045
+              protocol: TCP
+          env:
+            - name: INPUT_PORT
+              value: "5045"
+            - name: SPLUNK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: url
+            - name: SPLUNK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: port
+            - name: SPLUNK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-token
+                  key: token
+          volumeMounts:
+          - name: pipeline-infrastructure
+            mountPath: /usr/share/logstash/pipeline/
+          - name: config-application
+            mountPath: /usr/share/logstash/config/
+        # Audit
+        - image: docker.elastic.co/logstash/logstash:7.11.1
+          name: logstash-audit
+          ports:
+            - containerPort: 5046
+              protocol: TCP
+          env:
+            - name: INPUT_PORT
+              value: "5046"
+            - name: SPLUNK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: url
+            - name: SPLUNK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: port
+            - name: SPLUNK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-token
+                  key: token
+          volumeMounts:
+          - name: pipeline-audit
+            mountPath: /usr/share/logstash/pipeline/
+          - name: config-application
+            mountPath: /usr/share/logstash/config/
+          - name: logstash-ruby
+            mountPath: /usr/share/logstash/ruby_filter/
+      ### VOLUMES ###
+      volumes:
+        ## Pipelines ##
+        # Application
+        - name: pipeline-application
+          configMap: 
+            name: logstash-pipeline
+            items:
+            - key: input.conf
+              path: 1-input.conf
+            - key: application.conf
+              path: 2-filter.conf
+            - key: output.conf
+              path: 3-output.conf
+        # Infrastructure
+        - name: pipeline-infrastructure
+          configMap: 
+            name: logstash-pipeline
+            items:
+            - key: input.conf
+              path: 1-input.conf
+            - key: infrastructure.conf
+              path: 2-filter.conf
+            - key: output.conf
+              path: 3-output.conf
+        # Audit
+        - name: pipeline-audit
+          configMap: 
+            name: logstash-pipeline
+            items:
+            - key: input.conf
+              path: 1-input.conf
+            - key: audit.conf
+              path: 2-filter.conf
+            - key: output.conf
+              path: 3-output.conf
+        ## Configs ##
+        # Application
+        - name: config-application
+          configMap: 
+            name: logstash-config
+            items:
+            - key: application.yml
+              path: logstash.yml
+        # Infrastructure
+        - name: config-infrastructure
+          configMap: 
+            name: logstash-config
+            items:
+            - key: infrastructure.yml
+              path: logstash.yml
+        # Audit
+        - name: config-audit
+          configMap: 
+            name: logstash-config
+            items:
+            - key: audit.yml
+              path: logstash.yml
+        ## Ruby Scripts ##
+        # Audit
+        - name: logstash-ruby
+          configMap: 
+            name: logstash-ruby

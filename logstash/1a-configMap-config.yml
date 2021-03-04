@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+  namespace: openshift-logging
+data:
+  application.yml: |
+    path:
+      config: /usr/share/logstash/pipeline/
+  infrastructure.yml: |
+    path:
+      config: /usr/share/logstash/pipeline/
+  audit.yml: |
+    path:
+      config: /usr/share/logstash/pipeline/

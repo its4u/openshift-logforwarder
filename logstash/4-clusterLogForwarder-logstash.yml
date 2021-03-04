@@ -1,0 +1,38 @@
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+    - name: logstash-application
+      type: syslog
+      syslog:
+        severity: debug
+      url: 'tcp://logstash.openshift-logging.svc.cluster.local:5044/'
+    - name: logstash-infrastructure
+      type: syslog
+      syslog:
+        severity: informational
+      url: 'tcp://logstash.openshift-logging.svc.cluster.local:5045/'
+    - name: logstash-audit
+      type: syslog
+      syslog:
+        severity: debug
+      url: 'tcp://logstash.openshift-logging.svc.cluster.local:5046/'
+  pipelines:
+    - name: application-to-logstash
+      inputRefs:
+        - application
+      outputRefs:
+        - logstash-application
+    - name: infrastructure-to-logstash
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - logstash-infrastructure
+    - name: audit-to-logstash
+      inputRefs:
+        - audit
+      outputRefs:
+        - logstash-audit

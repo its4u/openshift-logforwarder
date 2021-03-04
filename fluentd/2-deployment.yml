@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentdForwarder
+  namespace: openshift-logging
+  labels:
+    app: fluentdForwarder
+    app.kubernetes.io/component: fluentdForwarder
+    app.kubernetes.io/instance: fluentdForwarder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: fluentdForwarder
+  template:
+    metadata:
+      labels:
+        deployment: fluentdForwarder
+        app: fluentdForwarder
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-logging-fluentd@sha256:63ad916c1dafad2b81cc00ddf976d543534d0acd6ef8c3ba41e4ef94578db794
+          name: logstash-application
+          ports:
+            - containerPort: 24224
+              protocol: TCP
+            - containerPort: 24225
+              protocol: TCP
+            - containerPort: 24226
+              protocol: TCP
+          env:
+            - name: SPLUNK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: url
+            - name: SPLUNK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: port
+            - name: SPLUNK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-token
+                  key: token
+          volumeMounts:
+          - name: fluentd-config
+            mountPath: /fluentd/etc/
+      volumes:
+        - name: fluentd-config
+          configMap: 
+            name: fluentd-config
+            items:
+            - key: fluent.conf
+              path: fluent.conf

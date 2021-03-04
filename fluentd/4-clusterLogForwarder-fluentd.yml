@@ -1,0 +1,38 @@
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+    - name: application-fluentdForwarder
+      type: fluentdForward
+      syslog:
+        severity: debug
+      url: 'tcp://:24224/'
+    - name: infrastructure-fluentdForwarder
+      type: fluentdForward
+      syslog:
+        severity: debug
+      url: 'tcp://:24225/'
+    - name: audit-fluentdForwarder
+      type: fluentdForward
+      syslog:
+        severity: debug
+      url: 'tcp://:24226/'
+  pipelines:
+    - name: application-to-fluentdForwarder
+      inputRefs:
+        - application
+      outputRefs:
+        - application-fluentdForwarder
+    - name: infrastructure-to-fluentdForwarder
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - infrastructure-fluentdForwarder
+    - name: audit-to-fluentdForwarder
+      inputRefs:
+        - audit
+      outputRefs:
+        - audit-fluentdForwarder

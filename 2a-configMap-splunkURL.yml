@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-config
+  namespace: openshift-logging
+data:
+  url: "temporary url"
+  port: "8080"

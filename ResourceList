@@ -1,0 +1,3 @@
+clusterlogforwarders/instance
+configmaps/splunk-config
+secret/splunk-token

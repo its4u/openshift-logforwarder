@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentdForwarder
+  namespace: openshift-logging
+spec:
+  selector:
+    app: fluentdForwarder
+  ports:
+  - port: 24224
+    protocol: TCP
+    targetPort: 24224
+    name: application
+  - port: 24225
+    protocol: TCP
+    targetPort: 24225
+    name: infrastructure
+  - port: 24226
+    protocol: TCP
+    targetPort: 24226
+    name: audit
