@@ -3,4 +3,3 @@ service/logstash
 deployment/logstash
 configmaps/logstash-config
 configmaps/logstash-pipeline
-configmaps/logstash-ruby

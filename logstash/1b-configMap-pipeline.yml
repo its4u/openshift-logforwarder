@@ -4,14 +4,38 @@ metadata:
   name: logstash-pipeline
   namespace: openshift-logging
 data:
-  input.conf: |
+  filter.conf: |
     input {
       tcp {
-        port => "${INPUT_PORT}"
+        tags => ["application"]
+        port => "5044"
+        type => syslog
+      }
+      tcp {
+        tags => ["infrastructure"]
+        port => "5045"
+        type => syslog
+      }
+      tcp {
+        tags => ["audit"]
+        port => "5046"
         type => syslog
       }
     }
-  output.conf: |
+
+    filter {
+      if "application" in [tags] {
+        #Need filter here
+      }
+      if "infrastructure" in [tags] {
+        #Need filter here
+      }
+      if "audit" in [tags] {
+        #Need filter here
+        drop {}
+      }
+    }
+
     output {
       http {
         http_method => "post"
@@ -24,30 +48,4 @@ data:
 
       # Uncomment to enable output to stdout
       # stdout {}
-    }
-  application.conf: |
-    filter {
-      #Need filter here
-    }
-  infrastructure.conf: |
-    filter {
-      #Need filter here
-    }
-  audit.conf: |
-    filter {
-      # Format beginning of message
-      ruby {
-        # Look at unformatted message to understand this filter.
-        path => "/usr/share/logstash/ruby_filter/main.rb"
-      }
-      # Format message in fields
-      kv {
-        source => "message"
-        field_split_pattern => "\t"
-        value_split => ":"
-        target => "message"
-      }
-
-      #Need filter here
-      drop {}
     }
