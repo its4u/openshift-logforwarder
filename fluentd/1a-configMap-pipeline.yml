@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-pipeline
+  namespace: openshift-logging
+data:
+  fluent.conf: |
+    ##################################
+    # Define inputs for each channel #
+    ##################################
+
+    #log level: trace, debug, info, warn, error, fatal
+
+    <source>
+      tag source.pipeline.application
+      # @log_level debug # Don't work, use filter grep exclude/regexp with key level
+      @type  forward
+      bind 0.0.0.0
+      port  24284
+    </source>
+
+    <source>
+      tag source.pipeline.infrastructure
+      # @log_level error # Don't work, use filter grep exclude/regexp with key level
+      @type  forward
+      bind 0.0.0.0
+      port  24285
+    </source>
+
+    <source>
+      tag source.pipeline.audit
+      # @log_level trace # Don't work, use filter grep exclude/regexp with key level
+      @type  forward
+      bind 0.0.0.0
+      port  24286
+    </source>
+
+    ##################
+    # Define filters #
+    ##################
+
+    #Add filter here
+    <filter source.pipeline.application>
+      @type grep
+      <exclude>
+        key level
+        pattern /^(unknown|trace|debug)$/
+      </exclude>
+    </filter>
+
+    #Add filter here
+    <filter source.pipeline.infrastructure>
+      @type grep
+      <regexp>
+        key level
+        pattern /^(error|fatal)$/
+      </regexp>
+    </filter>
+
+    #Add filter here
+    <filter source.pipeline.audit>
+      @type grep
+      <exclude>
+        key level
+        pattern /.*/
+      </exclude>
+    </filter>
+
+    #######################
+    # Define outputs here #
+    #######################
+
+    # <match **>
+    #   #https://github.com/fluent/fluent-plugin-splunk/blob/master/README.hec.md
+    #   @type splunk_hec
+    #   host "#{ENV[SPLUNK_URL]}"
+    #   port "#{ENV[SPLUNK_PORT]}"
+    #   token "#{ENV[SPLUNK_TOKEN]}"
+    # </match>
+
+    # Uncomment to enable output to stdout
+    <match **>
+      @type stdout
+    </match>

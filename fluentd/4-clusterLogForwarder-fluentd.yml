@@ -7,19 +7,13 @@ spec:
   outputs:
     - name: application-fluentdForwarder
       type: fluentdForward
-      syslog:
-        severity: debug
-      url: 'tcp://:24224/'
+      url: 'tcp://fluentd-forwarder.openshift-logging.svc.cluster.local:24284/'
     - name: infrastructure-fluentdForwarder
       type: fluentdForward
-      syslog:
-        severity: debug
-      url: 'tcp://:24225/'
+      url: 'tcp://fluentd-forwarder.openshift-logging.svc.cluster.local:24285/'
     - name: audit-fluentdForwarder
       type: fluentdForward
-      syslog:
-        severity: debug
-      url: 'tcp://:24226/'
+      url: 'tcp://fluentd-forwarder.openshift-logging.svc.cluster.local:24286/'
   pipelines:
     - name: application-to-fluentdForwarder
       inputRefs:
