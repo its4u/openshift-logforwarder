@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fluentd-runsh
+  name: forwarder-fluentd-runsh
   namespace: openshift-logging
 data:
   run.sh: |

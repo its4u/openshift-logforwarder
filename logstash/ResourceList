@@ -1,5 +1,5 @@
 clusterloggings/instance
-service/logstash
-deployment/logstash
-configmaps/logstash-config
-configmaps/logstash-pipeline
+service/forwarder-logstash
+deployment/forwarder-logstash
+configmaps/forwarder-logstash-config
+configmaps/forwarder-logstash-pipeline

@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: logstash
+  name: forwarder-logstash
   namespace: openshift-logging
 spec:
   selector:
-    app: logstash
+    app: forwarderLogstash
   ports:
   - nodePort: 0
     port: 5044

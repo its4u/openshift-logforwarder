@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fluentd-forwarder
+  name: forwarder-fluentd
   namespace: openshift-logging
   labels:
-    app: fluentdForwarder
-    app.kubernetes.io/component: fluentdForwarder
-    app.kubernetes.io/instance: fluentdForwarder
+    app: forwarderFluentd
+    app.kubernetes.io/component: forwarderFluentd
+    app.kubernetes.io/instance: forwarderFluentd
 spec:
   replicas: 1
   selector:
     matchLabels:
-      deployment: fluentdForwarder
+      deployment: forwarderFluentd
   template:
     metadata:
       labels:
-        deployment: fluentdForwarder
-        app: fluentdForwarder
+        deployment: forwarderFluentd
+        app: forwarderFluentd
     spec:
       containers:
         - image: registry.redhat.io/openshift4/ose-logging-fluentd
@@ -32,17 +32,17 @@ spec:
             - name: SPLUNK_URL
               valueFrom:
                 configMapKeyRef:
-                  name: splunk-config
+                  name: forwarder-splunk-config
                   key: url
             - name: SPLUNK_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: splunk-config
+                  name: forwarder-splunk-config
                   key: port
             - name: SPLUNK_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: splunk-token
+                  name: forwarder-splunk-token
                   key: token
             - name: FLUENT_CONF
               value: "/fluentd/etc/fluent.conf"
@@ -57,10 +57,10 @@ spec:
       volumes:
         - name: config
           configMap: 
-            name: fluentd-pipeline
+            name: forwarder-fluentd-pipeline
         - name: entrypoint
           configMap:
-            name: fluentd-runsh
+            name: forwarder-fluentd-runsh
         - name: varlib
           emptyDir:
             sizeLimit: 500Mi

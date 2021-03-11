@@ -13,7 +13,6 @@ ___
 
 #### File to look at:
 - **1b-configMap-pipeline.yml**: Put personnal filters
-- **1c-configMap-ruby.yml**: Put personnal ruby script
 - **4-clusterLogForwarder-logstash.yml**: Put log level for each log cateories, in spec.outputs.syslog.severity
 
 ___
@@ -22,7 +21,6 @@ ___
 #### 1x-configMap-:
 - **config**: Contain logstash path to pipelines files.
 - **pipeline**: Contain input, output and filters.
-- **ruby**: Contain every ruby scripts
 
 #### 2-deployment:
 Contain logstash deployment configuration.

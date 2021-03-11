@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: fluentd-forwarder
+  name: forwarder-fluentd
   namespace: openshift-logging
 spec:
   selector:
-    app: fluentdForwarder
+    app: forwarderFluentd
   ports:
   - port: 24284
     protocol: TCP

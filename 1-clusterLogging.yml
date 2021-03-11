@@ -6,6 +6,8 @@ metadata:
 spec:
   collection:
     logs:
+      type: fluentd
+      # Minimal request, not necessary
       fluentd:
         resources:
           limits:
@@ -14,5 +16,4 @@ spec:
           requests:
             cpu: 50m
             memory: 100Mi
-      type: fluentd
   managementState: Managed

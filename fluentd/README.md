@@ -9,13 +9,14 @@ ___
 ## Configuration
 
 #### File to look at:
-- **1-configMap-pipeline.yml**: Put personnal filters and log level
+- **1a-configMap-pipeline.yml**: Put personnal filters and log level
 
 ___
 ## File content
 
-#### 1-configMap-pipeline:
-Contain FluentdForwarder pipelines configurations.
+#### 1x-configMap-:
+- **pipeline**: Contain FluentdForwarder pipelines configurations.
+- **runsh**: Contain script to start fluentd.
 
 #### 2-deployment:
 Contain FluentdForwarder deployment configuration.

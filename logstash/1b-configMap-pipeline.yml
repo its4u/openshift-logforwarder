@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: logstash-pipeline
+  name: forwarder-logstash-pipeline
   namespace: openshift-logging
 data:
   filter.conf: |

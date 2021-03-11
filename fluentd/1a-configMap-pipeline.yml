@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fluentd-pipeline
+  name: forwarder-fluentd-pipeline
   namespace: openshift-logging
 data:
   fluent.conf: |
@@ -9,7 +9,7 @@ data:
     # Define inputs for each channel #
     ##################################
 
-    #log level: trace, debug, info, warn, error, fatal
+    #log level: unknown, trace, debug, info, warn, error, fatal
 
     <source>
       tag source.pipeline.application
@@ -40,13 +40,13 @@ data:
     ##################
 
     #Add filter here
-    <filter source.pipeline.application>
-      @type grep
-      <exclude>
-        key level
-        pattern /^(unknown|trace|debug)$/
-      </exclude>
-    </filter>
+    # <filter source.pipeline.application>
+    #   @type grep
+    #   <regexp>
+    #     key level
+    #     pattern /^(unknown|trace|debug|info|warn|error|fatal)$/
+    #   </regexp>
+    # </filter>
 
     #Add filter here
     <filter source.pipeline.infrastructure>
@@ -70,15 +70,15 @@ data:
     # Define outputs here #
     #######################
 
-    # <match **>
-    #   #https://github.com/fluent/fluent-plugin-splunk/blob/master/README.hec.md
-    #   @type splunk_hec
-    #   host "#{ENV[SPLUNK_URL]}"
-    #   port "#{ENV[SPLUNK_PORT]}"
-    #   token "#{ENV[SPLUNK_TOKEN]}"
-    # </match>
+    <match **>
+      #https://github.com/fluent/fluent-plugin-splunk/blob/master/README.hec.md
+      @type splunk_hec
+      host "#{ENV[SPLUNK_URL]}"
+      port "#{ENV[SPLUNK_PORT]}"
+      token "#{ENV[SPLUNK_TOKEN]}"
+    </match>
 
     # Uncomment to enable output to stdout
-    <match **>
-      @type stdout
-    </match>
+    # <match **>
+    #   @type stdout
+    # </match>

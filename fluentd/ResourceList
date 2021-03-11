@@ -1,5 +1,5 @@
 clusterloggings/instance
-service/fluentd-forwarder
-deployment/fluentd-forwarder
-configmaps/fluentd-pipeline
-configmaps/fluentd-runsh
+service/forwarder-fluentd
+deployment/forwarder-fluentd
+configmaps/forwarder-fluentd-pipeline
+configmaps/forwarder-fluentd-runsh

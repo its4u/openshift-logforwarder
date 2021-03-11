@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: logstash
+  name: forwarder-logstash
   namespace: openshift-logging
   labels:
-    app: logstash
-    app.kubernetes.io/component: logstash
-    app.kubernetes.io/instance: logstash
+    app: forwarderLogstash
+    app.kubernetes.io/component: forwarderLogstash
+    app.kubernetes.io/instance: forwarderLogstash
 spec:
   replicas: 1
   selector:
     matchLabels:
-      deployment: logstash
+      deployment: forwarderLogstash
   template:
     metadata:
       labels:
-        deployment: logstash
-        app: logstash
+        deployment: forwarderLogstash
+        app: forwarderLogstash
     spec:
       containers:
-        - image: docker.elastic.co/logstash/logstash:7.11.1
-          name: logstash
+        - image: docker.elastic.co/logstash/logstash
+          name: forwarder-logstash
           ports:
             - containerPort: 5044
               protocol: TCP
@@ -52,7 +52,7 @@ spec:
       volumes:
         - name: pipeline
           configMap: 
-            name: logstash-pipeline
+            name: forwarder-logstash-pipeline
         - name: config
           configMap: 
-            name: logstash-config
+            name: forwarder-logstash-config
