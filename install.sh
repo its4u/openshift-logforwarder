@@ -11,13 +11,12 @@ if [[ ! -d "$1" ]]; then
 fi;
 
 
-# Apply general configuration (Splunk)
-for f in $(ls *.yml | sort); do
-  oc apply -f $f;
-done;
-
 # Apply specific configuration
 for f in $(ls $1/*.yml | sort); do
   oc apply -f $f;
 done;
 
+# Apply general configuration (Splunk)
+for f in $(ls *.yml | sort); do
+  oc apply -f $f;
+done;
