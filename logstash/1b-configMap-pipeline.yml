@@ -31,6 +31,23 @@ data:
         #Need filter here
       }
       if "audit" in [tags] {
+        # # First simple format
+        # ruby {
+        #   path => "/usr/share/logstash/ruby/format-simple.rb"
+        # }
+        # # Format message in fields
+        # kv {
+        #   source => "message"
+        #   field_split_pattern => "\t"
+        #   value_split => ":"
+        #   target => "message"
+        # }
+
+        # # Second deeper format
+        # ruby {
+        #   path => "/usr/share/logstash/ruby/format-deep.rb"
+        # }
+
         #Need filter here
         drop {}
       }

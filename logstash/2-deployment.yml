@@ -19,7 +19,7 @@ spec:
         app: forwarderLogstash
     spec:
       containers:
-        - image: docker.elastic.co/logstash/logstash
+        - image: docker.elastic.co/logstash/logstash:7.11.1
           name: forwarder-logstash
           ports:
             - containerPort: 5044
@@ -32,23 +32,25 @@ spec:
             - name: SPLUNK_URL
               valueFrom:
                 configMapKeyRef:
-                  name: splunk-config
+                  name: forwarder-splunk-config
                   key: url
             - name: SPLUNK_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: splunk-config
+                  name: forwarder-splunk-config
                   key: port
             - name: SPLUNK_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: splunk-token
+                  name: forwarder-splunk-token
                   key: token
           volumeMounts:
           - name: pipeline
             mountPath: /usr/share/logstash/pipeline/
           - name: config
             mountPath: /usr/share/logstash/config/
+          - name: ruby
+            mountPath: /usr/share/logstash/ruby/
       volumes:
         - name: pipeline
           configMap: 
@@ -56,3 +58,6 @@ spec:
         - name: config
           configMap: 
             name: forwarder-logstash-config
+        - name: ruby
+          configMap: 
+            name: forwarder-logstash-ruby

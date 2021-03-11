@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forwarder-logstash-ruby
+  namespace: openshift-logging
+data:
+  format-simple.rb: |
+    def filter(event)
+      #get the message field
+      message = event.get("message")
+
+      # regexp
+      debut = message[/.* .* (.* .*) - - - .*/, 1]
+      formate = message[/.* - - - (.*)/, 1]
+
+      # replace @timestamp with timestamp
+      formate.sub! '@timestamp', 'timestamp'
+
+      # replace message with custom value
+      event.set("message", "pod:"+debut+"\t"+formate)
+
+      #return the event in a list
+      return [event]
+    end
+  format-deep.rb: |
+    def kv_field(event, field)
+      #Reconstruct path
+      path = ""
+      field.each do |f|
+        path += "["+f+"]"
+      end
+
+      content = event.get(path)
+
+      #Remove key/value to replace it
+      event.remove(path)
+
+      # Remove beginning and ending brackets
+      content.sub!( /^{/ , '' )
+      content.sub!( /}$/ , '' )
+
+      # Remove space after comma
+      content.gsub!( /, / , ',' )
+
+      # Replace special characters
+      content.gsub!( /"/ , '' )
+      content.gsub!( '\\'  , '"' )
+
+      # Replace ',' between '[]'.
+      if content.include? "["
+        content[/\[(.*)\]/, 1] = content.slice(/\[(.*)\]/, 1).gsub(',', '# ')
+      end
+
+      # Replace ',' and '=>' between '{}'.
+      if content.include? "{"
+        content[/\{(.*)\}/m, 1] = content.slice(/\{(.*)\}/m, 1).gsub(',', '# ')
+        content[/\{(.*)\}/m, 1] = content.slice(/\{(.*)\}/m, 1).gsub('=>', '#>')
+      end
+
+      #Loop through each sub-key/value
+      content.split(",").each do |subfield|
+        # Put back all ','
+        unless subfield.empty?
+          subfield.gsub!( '# ', ',')
+        end
+
+        # Split key and value
+        key = subfield.split("=>")[0]
+
+        # Get value if exist, and put back remaining '=>'
+        if subfield.split("=>").length() == 2
+          value = subfield.split("=>")[1]
+          value.gsub!('#>', '=>')
+        else
+          value = ""
+        end
+
+        # Path with key
+        subpath = path+"["+key+"]"
+
+        # If value is an array
+        if value[0] == "["
+          value.sub!(/^\[/, '').sub!(/\]$/,'')
+          values = value.split(',')
+
+          event.set(subpath, values)
+
+        # If value is not an array
+        else
+          event.set(subpath, value)
+
+          # If value contain sub-key/value
+          if value[0] == "{"
+            field.push(key)
+            kv_field(event, field)
+            field.pop()
+          end
+        end
+
+      end
+    end
+
+    def filter(event)
+      #every fields that need to be formated
+      fields = [
+        "objectRef",
+        "user",
+        "annotations",
+        "pipeline_metadata",
+        "responseStatus",
+        "audit\.linux",
+        "kubernetes"
+      ]
+
+      fields.each do |field|
+        if event.get("[message][#{field}]")
+          kv_field(event, ["message", field])
+        end
+      end
+
+      return [event]
+    end

@@ -21,6 +21,7 @@ ___
 #### 1x-configMap-:
 - **config**: Contain logstash path to pipelines files.
 - **pipeline**: Contain input, output and filters.
+- **ruby**: Contain every ruby scripts.
 
 #### 2-deployment:
 Contain logstash deployment configuration.
