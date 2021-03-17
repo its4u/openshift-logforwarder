@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: forwarder-fluentd
   namespace: openshift-logging
+  labels:
+    app: forwarderFluentd
+    app.kubernetes.io/component: forwarderFluentd
+    app.kubernetes.io/instance: forwarderFluentd
 spec:
   selector:
     app: forwarderFluentd

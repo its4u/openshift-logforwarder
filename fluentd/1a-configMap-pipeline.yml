@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: forwarder-fluentd-pipeline
   namespace: openshift-logging
+  labels:
+    app: forwarderFluentd
+    app.kubernetes.io/component: forwarderFluentd
+    app.kubernetes.io/instance: forwarderFluentd
 data:
   fluent.conf: |
     ##################################

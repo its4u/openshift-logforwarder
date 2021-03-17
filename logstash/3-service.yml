@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: forwarder-logstash
   namespace: openshift-logging
+  labels:
+    app: forwarderLogstash
+    app.kubernetes.io/component: forwarderLogstash
+    app.kubernetes.io/instance: forwarderLogstash
 spec:
   selector:
     app: forwarderLogstash

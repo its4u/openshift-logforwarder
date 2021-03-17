@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: forwarder-logstash-config
   namespace: openshift-logging
+  labels:
+    app: forwarderLogstash
+    app.kubernetes.io/component: forwarderLogstash
+    app.kubernetes.io/instance: forwarderLogstash
 data:
   logstash.yml: |
     path:
