@@ -17,7 +17,6 @@ data:
 
     fluentdargs="--suppress-config-dump $fluentdargs"
 
-
     issue_deprecation_warnings() {
         : # none at the moment
     }

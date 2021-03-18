@@ -2,8 +2,12 @@
 
 Create an additionnal fluentd pod, to forward log between Cluster Logging instance using `fluentdforward` protocol.
 
-Image used: `registry.redhat.io/openshift4/ose-logging-fluentd@sha256:63ad916c1dafad2b81cc00ddf976d543534d0acd6ef8c3ba41e4ef94578db794`
+Image used: `registry.redhat.io/openshift4/ose-logging-fluentd`
+Please specify sha key of image.
 (Should be present when installing `Cluster Logging` Operator)
+
+Audit log restricted to non system user.
+Infrastructure log restricted to Error and Fatal level. (may be Unknown)
 
 ___
 ## Configuration

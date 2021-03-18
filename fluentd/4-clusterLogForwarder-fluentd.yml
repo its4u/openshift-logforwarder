@@ -7,13 +7,13 @@ spec:
   outputs:
     - name: fluentd-application
       type: fluentdForward
-      url: 'tcp://forwarder-fluentd.openshift-logging.svc.cluster.local:24284/'
+      url: 'tcp://forwarder-fluentd.openshift-logging.svc:24284/'
     - name: fluentd-infrastructure
       type: fluentdForward
-      url: 'tcp://forwarder-fluentd.openshift-logging.svc.cluster.local:24285/'
+      url: 'tcp://forwarder-fluentd.openshift-logging.svc:24285/'
     - name: fluentd-audit
       type: fluentdForward
-      url: 'tcp://forwarder-fluentd.openshift-logging.svc.cluster.local:24286/'
+      url: 'tcp://forwarder-fluentd.openshift-logging.svc:24286/'
   pipelines:
     - name: application
       inputRefs:
