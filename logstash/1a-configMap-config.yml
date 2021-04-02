@@ -4,7 +4,8 @@ metadata:
   name: forwarder-logstash-config
   namespace: openshift-logging
   labels:
-    app: forwarderLogstash
+    app: forwarder
+    appVersion: logstash
     app.kubernetes.io/component: forwarderLogstash
     app.kubernetes.io/instance: forwarderLogstash
 data:

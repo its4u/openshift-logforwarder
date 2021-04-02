@@ -4,12 +4,14 @@ metadata:
   name: forwarder-logstash
   namespace: openshift-logging
   labels:
-    app: forwarderLogstash
+    app: forwarder
+    appVersion: logstash
     app.kubernetes.io/component: forwarderLogstash
     app.kubernetes.io/instance: forwarderLogstash
 spec:
   selector:
-    app: forwarderLogstash
+    app: forwarder
+    appVersion: logstash
   ports:
   - nodePort: 0
     port: 5044

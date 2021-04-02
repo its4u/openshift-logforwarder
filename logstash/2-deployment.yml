@@ -4,7 +4,8 @@ metadata:
   name: forwarder-logstash
   namespace: openshift-logging
   labels:
-    app: forwarderLogstash
+    app: forwarder
+    appVersion: logstash
     app.kubernetes.io/component: forwarderLogstash
     app.kubernetes.io/instance: forwarderLogstash
 spec:
@@ -16,7 +17,8 @@ spec:
     metadata:
       labels:
         deployment: forwarderLogstash
-        app: forwarderLogstash
+        app: forwarder
+        appVersion: logstash
     spec:
       containers:
         - image: docker.elastic.co/logstash/logstash:7.11.1

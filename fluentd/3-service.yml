@@ -4,12 +4,14 @@ metadata:
   name: forwarder-fluentd
   namespace: openshift-logging
   labels:
-    app: forwarderFluentd
+    app: forwarder
+    appVersion: fluentd
     app.kubernetes.io/component: forwarderFluentd
     app.kubernetes.io/instance: forwarderFluentd
 spec:
   selector:
-    app: forwarderFluentd
+    app: forwarder
+    appVersion: fluentd
   ports:
   - port: 24284
     protocol: TCP

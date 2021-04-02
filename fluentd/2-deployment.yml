@@ -16,7 +16,8 @@ spec:
     metadata:
       labels:
         deployment: forwarderFluentd
-        app: forwarderFluentd
+        app: forwarder
+        appVersion: fluentd
     spec:
       containers:
         - image: registry.redhat.io/openshift4/ose-logging-fluentd
@@ -45,7 +46,7 @@ spec:
                   name: forwarder-splunk-token
                   key: token
             - name: FLUENT_CONF
-              value: "/fluentd/etc/fluent.conf"
+              value: "/etc/fluent/fluent.conf"
           volumeMounts:
           - name: config
             mountPath: /etc/fluent/configs.d/user	

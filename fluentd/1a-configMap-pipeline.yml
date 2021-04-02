@@ -4,7 +4,8 @@ metadata:
   name: forwarder-fluentd-pipeline
   namespace: openshift-logging
   labels:
-    app: forwarderFluentd
+    app: forwarder
+    appVersion: fluentd
     app.kubernetes.io/component: forwarderFluentd
     app.kubernetes.io/instance: forwarderFluentd
 data:
@@ -16,7 +17,7 @@ data:
     #log level: unknown, trace, debug, info, warn, error, fatal
 
     <source>
-      tag source.pipeline.application
+      tag application
       # @log_level debug # Don't work, use filter grep exclude/regexp with key level
       @type  forward
       bind 0.0.0.0
@@ -24,7 +25,7 @@ data:
     </source>
 
     <source>
-      tag source.pipeline.infrastructure
+      tag infrastructure
       # @log_level error # Don't work, use filter grep exclude/regexp with key level
       @type  forward
       bind 0.0.0.0
@@ -32,7 +33,7 @@ data:
     </source>
 
     <source>
-      tag source.pipeline.audit
+      tag audit
       # @log_level trace # Don't work, use filter grep exclude/regexp with key level
       @type  forward
       bind 0.0.0.0
@@ -44,37 +45,43 @@ data:
     ##################
 
     #Add filter here
-    # <filter source.pipeline.application>
-    #   @type grep
-    #   <regexp>
-    #     key level
-    #     pattern /^(unknown|trace|debug|info|warn|error|fatal)$/
-    #   </regexp>
+    # <filter application>
     # </filter>
 
     #Add filter here
-    <filter source.pipeline.infrastructure>
+    <filter infrastructure>
       @type grep
       <regexp>
         key level
-        pattern /^(error|fatal)$/
+        pattern /^(info|warn|error|fatal)$/
       </regexp>
     </filter>
 
     #Add filter here
-    <filter source.pipeline.audit>
+    <filter audit>
       @type grep
       <exclude>
         key $.user.username
         pattern /system/
       </exclude>
     </filter>
-    <filter source.pipeline.audit>
+    <filter audit>
       @type grep
       <exclude>
         key $.verb
         pattern /(get|list|watch)/
       </exclude>
+    </filter>
+
+    ###
+    # Adding source tag
+    ###
+
+    <filter *>
+      @type record_transformer
+      <record>
+        source_pipeline ${tag}
+      </record>
     </filter>
 
     #######################
@@ -86,11 +93,11 @@ data:
       protocol "https"
       insecure_ssl "true"
       hec_host "#{ENV['SPLUNK_URL']}"
+      hec_port "#{ENV['SPLUNK_PORT']}"
+      hec_token "#{ENV['SPLUNK_TOKEN']}"
       sourcetype "openshift"
       source "openshift"
       index "openshift"
-      hec_port "#{ENV['SPLUNK_PORT']}"
-      hec_token "#{ENV['SPLUNK_TOKEN']}"
       host "openshift"
       <buffer>
         @type memory

@@ -4,7 +4,8 @@ metadata:
   name: forwarder-fluentd-runsh
   namespace: openshift-logging
   labels:
-    app: forwarderFluentd
+    app: forwarder
+    appVersion: fluentd
     app.kubernetes.io/component: forwarderFluentd
     app.kubernetes.io/instance: forwarderFluentd
 data:
