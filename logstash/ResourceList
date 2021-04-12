@@ -1,6 +1,0 @@
-clusterloggings/instance
-service/forwarder-logstash
-deployment/forwarder-logstash
-configmaps/forwarder-logstash-config
-configmaps/forwarder-logstash-pipeline
-configmaps/forwarder-logstash-ruby

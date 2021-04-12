@@ -4,7 +4,8 @@ metadata:
   name: forwarder-fluentd
   namespace: openshift-logging
   labels:
-    app: forwarderFluentd
+    app: forwarder
+    appVersion: fluentd
     app.kubernetes.io/component: forwarderFluentd
     app.kubernetes.io/instance: forwarderFluentd
 spec:
@@ -20,7 +21,8 @@ spec:
         appVersion: fluentd
     spec:
       containers:
-        - image: registry.redhat.io/openshift4/ose-logging-fluentd
+        #Image SHA here
+        - image: registry.redhat.io/openshift-logging/fluentd-rhel@
           name: fluentd-forwarder
           ports:
             - containerPort: 24284

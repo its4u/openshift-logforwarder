@@ -2,9 +2,8 @@
 
 Create an additionnal fluentd pod, to forward log between Cluster Logging instance using `fluentdforward` protocol.
 
-Image used: `registry.redhat.io/openshift4/ose-logging-fluentd`
-Please specify sha key of image.
-(Should be present when installing `Cluster Logging` Operator)
+Image used: `registry.redhat.io/openshift-logging/fluentd-rhel@`
+Please specify sha key of image used in fluentd collector with Cluster Logging Operator.
 
 Audit log restricted to non system user.
 Infrastructure log restricted to Error and Fatal level. (may be Unknown)
@@ -14,6 +13,7 @@ ___
 
 #### File to look at:
 - **1a-configMap-pipeline.yml**: Put personnal filters and log level
+- **2-deployment.yml**: Put image sha
 
 ___
 ## File content
