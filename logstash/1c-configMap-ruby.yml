@@ -9,26 +9,8 @@ metadata:
     app.kubernetes.io/component: forwarderLogstash
     app.kubernetes.io/instance: forwarderLogstash
 data:
-  format-simple.rb: |
-    def filter(event)
-      #get the message field
-      message = event.get("message")
-
-      # regexp
-      debut = message[/.* .* (.* .*) - - - .*/, 1]
-      formate = message[/.* - - - (.*)/, 1]
-
-      # replace @timestamp with timestamp
-      formate.sub! '@timestamp', 'timestamp'
-
-      # replace message with custom value
-      event.set("message", "pod:"+debut+"\t"+formate)
-
-      #return the event in a list
-      return [event]
-    end
-  format-deep.rb: |
-    def kv_field(event, field)
+  format-message.rb: |
+    def recursive_format(event, field)
       #Reconstruct path
       path = ""
       field.each do |f|
@@ -41,32 +23,25 @@ data:
       event.remove(path)
 
       # Remove beginning and ending brackets
-      content.sub!( /^{/ , '' )
-      content.sub!( /}$/ , '' )
+      content.sub!( /^\{/ , '' )
+      content.sub!( /\}$/ , '' )
 
-      # Remove space after comma
-      content.gsub!( /, / , ',' )
-
-      # Replace special characters
-      content.gsub!( /"/ , '' )
-      content.gsub!( '\\'  , '"' )
-
-      # Replace ',' between '[]'.
-      if content.include? "["
-        content[/\[(.*)\]/, 1] = content.slice(/\[(.*)\]/, 1).gsub(',', '# ')
+      # Replace special characters between '[]'.
+      if content.match(/\[.*\]/)
+        content[/\[(.*)\]/m, 1] = content.slice(/\[(.*)\]/m, 1).gsub(', ', '# ')
       end
 
-      # Replace ',' and '=>' between '{}'.
-      if content.include? "{"
-        content[/\{(.*)\}/m, 1] = content.slice(/\{(.*)\}/m, 1).gsub(',', '# ')
+      # Replace special characters between '{}'.
+      if content.match(/\{.*\}/)
+        content[/\{(.*)\}/m, 1] = content.slice(/\{(.*)\}/m, 1).gsub(', ', '# ')
         content[/\{(.*)\}/m, 1] = content.slice(/\{(.*)\}/m, 1).gsub('=>', '#>')
       end
 
       #Loop through each sub-key/value
-      content.split(",").each do |subfield|
-        # Put back all ','
+      content.split(", ").each do |subfield|
+        # Put back all ', '
         unless subfield.empty?
-          subfield.gsub!( '# ', ',')
+          subfield.gsub!( '# ', ', ')
         end
 
         # Split key and value
@@ -84,44 +59,68 @@ data:
         subpath = path+"["+key+"]"
 
         # If value is an array
-        if value[0] == "["
+        if value[0] == "[" && value[-1] == "]"
           value.sub!(/^\[/, '').sub!(/\]$/,'')
           values = value.split(',')
-
           event.set(subpath, values)
 
         # If value is not an array
         else
           event.set(subpath, value)
-
           # If value contain sub-key/value
-          if value[0] == "{"
+          if value[0] == "{" && value[-1] == "}"
             field.push(key)
-            kv_field(event, field)
+            recursive_format(event, field)
             field.pop()
           end
         end
 
       end
     end
-
+    
     def filter(event)
-      #every fields that need to be formated
-      fields = [
-        "objectRef",
-        "user",
-        "annotations",
-        "pipeline_metadata",
-        "responseStatus",
-        "audit\.linux",
-        "kubernetes"
-      ]
+      message = event.get("[message]")
 
-      fields.each do |field|
-        if event.get("[message][#{field}]")
-          kv_field(event, ["message", field])
-        end
+      # Sometimes, some exception are not formated
+      unless message.match( /.* .* (.* .*) - - - .*/ )
+        return [event]
       end
 
+      event.set("[OriginalMessage]", message)
+
+      #Error when using @timestamp
+      message.sub!('@timestamp', 'timestamp')
+
+      # Extract collector pod name
+      message[/(.* - - - ).*/, 1] = "collector:" + message[/.* .* (.* .*) - - - .*/, 1] + "\t"
+
+      # "field:value" to "field=>value"
+      fields = message.split("\t")
+      fields.each do |field|
+        field.replace( field[/(.*?):.*/, 1] + '=>' + field[/.*?:(.*)/, 1] )
+      end
+      message = fields.join(", ")
+
+      # Remove special characters
+      message.gsub!( '"' , '' )
+      message.gsub!( '\\' , '"' )
+
+      if message.match( /systemd.*status: / )
+        puts "###Erreur possible: " + message + "##"
+        return [event]
+      end
+
+      # Replace message
+      event.remove("[message]")
+      event.set("[message]", message)
+
+      begin
+        recursive_format(event, ["message"])
+      rescue => e
+        event.set("[message]", event.get["OriginalMessage"])
+      end
+
+      event.remove("[OriginalMessage]")
+      
       return [event]
     end

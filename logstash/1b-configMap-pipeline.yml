@@ -29,6 +29,10 @@ data:
     }
 
     filter {
+      ruby {
+        path => "/user/share/logstash/ruby/format-message.rb"
+      }
+
       if "application" in [tags] {
         #Need filter here
       }
@@ -36,38 +40,23 @@ data:
         #Need filter here
       }
       if "audit" in [tags] {
-        # # First simple format
-        # ruby {
-        #   path => "/usr/share/logstash/ruby/format-simple.rb"
-        # }
-        # # Format message in fields
-        # kv {
-        #   source => "message"
-        #   field_split_pattern => "\t"
-        #   value_split => ":"
-        #   target => "message"
-        # }
-
-        # # Second deeper format
-        # ruby {
-        #   path => "/usr/share/logstash/ruby/format-deep.rb"
-        # }
-
         #Need filter here
         drop {}
       }
     }
 
     output {
-      http {
-        http_method => "post"
-        url => "${SPLUNK_URL}:${SPLUNK_PORT}"
-        headers => ["Authorization", "Splunk ${SPLUNK_TOKEN}"]
-        mapping => {
-          "event" => "%{log}"
-        }
-      }
+      # http {
+      #   format => "json"
+      #   content_type => "application/json"
+      #   http_method => "post"
+      #   url => "https://${SPLUNK_URL}:${SPLUNK_PORT}/services/collector/raw"
+      #   headers => ["Authorization", "Splunk ${SPLUNK_TOKEN}"]
+      #   mapping => {
+      #     "event" => "%{message}"
+      #   }
+      # }
 
       # Uncomment to enable output to stdout
-      # stdout {}
+      stdout {}
     }

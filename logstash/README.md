@@ -1,5 +1,7 @@
 # Logstash Forwarder
 
+> :warning: **Message are not formated. Please use Fluentd, or disable message formatting.**
+
 Create a Logstash pod, to forward log between OpenShift Cluster Fluentd and an external log storage.
 A single pod is used to produce a single point for log input and output, but 3 containers are used.
 
@@ -7,6 +9,8 @@ Thoses three containers of logstash are running in the same pod, each one for on
 - Application
 - Infrastructure
 - Audit
+
+**Image used:** `docker.elastic.co/logstash/logstash:7.11.1`
 
 ___
 ## Configuration
