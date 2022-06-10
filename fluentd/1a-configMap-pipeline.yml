@@ -52,9 +52,38 @@ data:
     <filter infrastructure>
       @type grep
       <regexp>
-        key level
-        pattern /^(info|warn|error|fatal)$/
+        key $.level
+        pattern /^(warn|error|fatal)$/
       </regexp>
+    </filter>
+    # Solved in 4.10.3: https://access.redhat.com/solutions/6081991
+    <filter infrastructure>
+      @type grep
+      <and>
+        <exclude>
+          key $.kubernetes.namespace_name
+          pattern /^openshift-kube-apiserver$/
+        </exclude>
+        <exclude>
+          key $.message
+          pattern /\] ClusterQuotaAdmission received non-meta object \*unstructured\.Unstructured$/
+        </exclude>
+      </and>
+    </filter>
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1537270
+    # Solved in 4.10.3: https://access.redhat.com/solutions/6081991
+    <filter infrastructure>
+      @type grep
+      <and>
+        <exclude>
+          key $.kubernetes.namespace_name
+          pattern /^openshift-cluster-version$/
+        </exclude>
+        <exclude>
+          key $.message
+          pattern /\] watch chan error: etcdserver: mvcc: required revision has been compacted$/
+        </exclude>
+      </and>
     </filter>
 
     #Add filter here
@@ -73,9 +102,9 @@ data:
       </exclude>
     </filter>
 
-    ###
-    # Adding source tag
-    ###
+    #####################
+    # Adding source tag #
+    #####################
 
     <filter *>
       @type record_transformer
@@ -83,35 +112,56 @@ data:
         source_pipeline ${tag}
       </record>
     </filter>
+    
+    ##########################################
+    # Remove forwarder logs (duplicate logs) #
+    ##########################################
+    
+    <filter infrastructure>
+      @type grep
+      <and>
+        <exclude>
+          key $.kubernetes.namespace_name
+          pattern /^openshift-logging$/
+        </exclude>
+        <exclude>
+          key $.kubernetes.container_name
+          pattern /^fluentd-forwarder$/
+        </exclude>
+      </and>
+    </filter>
 
     #######################
     # Define outputs here #
     #######################
 
     <match **>
-      @type splunk_hec
-      protocol "https"
-      insecure_ssl "true"
-      hec_host "#{ENV['SPLUNK_URL']}"
-      hec_port "#{ENV['SPLUNK_PORT']}"
-      hec_token "#{ENV['SPLUNK_TOKEN']}"
-      sourcetype "openshift"
-      source "openshift"
-      index "openshift"
-      host "openshift"
-      <buffer>
-        @type memory
-        chunk_limit_records 100000
-        chunk_limit_size 200m
-        flush_interval 5s
-        flush_thread_count 1
-        overflow_action block
-        retry_max_times 3
-        total_limit_size 600m
-      </buffer>
+      @type copy
+      
+      <store>
+        @type stdout
+      </store>
+      
+      <store>
+        @type splunk_hec
+        protocol "https"
+        insecure_ssl "true"
+        hec_host "#{ENV['SPLUNK_URL']}"
+        hec_port "#{ENV['SPLUNK_PORT']}"
+        hec_token "#{ENV['SPLUNK_TOKEN']}"
+        sourcetype "openshift"
+        source "openshift"
+        index "openshift"
+        host "openshift"
+        <buffer>
+          @type memory
+          chunk_limit_records 100000
+          chunk_limit_size 200m
+          flush_interval 5s
+          flush_thread_count 1
+          overflow_action block
+          retry_max_times 3
+          total_limit_size 600m
+        </buffer>
+      </store>
     </match>
-
-    # Uncomment to enable output to stdout
-    # <match **>
-    #   @type stdout
-    # </match>
